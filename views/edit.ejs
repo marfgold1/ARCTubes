@@ -1,0 +1,35 @@
+<% layout('layout') %>
+    <br>
+    <a class="btn btn-primary" href="/manage" role="button">Back</a>
+    <h3 class="text-center display-1">Edit Pertanyaan dan Jawaban</h3>
+    <form id="form-edit">
+        <div class="mb-3">
+            <%- include('form', {label: "Slug", name: "slug", type: "text", readonly: true, required: true, value: post.slug}) %>
+        </div>
+        <div class="mb-3">
+            <%- include('form', {label: "Soal", name: "soal", type: "text", required: true, value: post.soal}) %>
+        </div>
+        <div class="mb-3">
+            <%- include('form', {label: "Jawaban Benar", name: "jawaban_benar", type: "text", required: true, value: post.jawaban_benar}) %>
+        </div>
+        <div class="mb-3">
+            <%- include('form', {label: "Jawaban Salah 1", name: "jawaban_salah_1", type: "text", required: true, value: post.jawaban_salah_1}) %>
+        </div>
+        <div class="mb-3">
+            <%- include('form', {label: "Jawaban Salah 2", name: "jawaban_salah_2", type: "text", required: true, value: post.jawaban_salah_2}) %>
+        </div>
+        <div class="mb-3">
+            <%- include('form', {label: "Jawaban Salah 3", name: "jawaban_salah_3", type: "text", required: true, value: post.jawaban_salah_3}) %>
+        </div>
+        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+    </form>
+    <br>
+
+
+    <script src="/form.js"></script>
+    <script>
+        let form = $("#form-edit")[0];
+        setFormProcess(form, "/manage/edit/<%= post.slug %>", "PUT", function() {
+            window.location.replace("/manage/");
+        });
+    </script>
