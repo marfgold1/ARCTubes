@@ -105,6 +105,12 @@ router.delete("/manage/delete/:slug", function(req, res, next) {
     })
     .catch(error => {res.sendStatus(500); console.error(error);})
     */
+    const slug = req.params.slug;
+    Manage.deleteOne({ slug })
+    .then(data => {
+        res.status(204).json();
+    })
+    .catch(error => {res.sendStatus(500); console.error(error);})
 });
 
 export default router;
