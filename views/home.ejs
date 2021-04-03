@@ -1,0 +1,13 @@
+<% layout('layout') %>
+<div class="container">
+    <h1 class="text-center display-1">Kuis Networking ARC</h1>
+    <br />
+    <form id="form-game" action="/play" method="GET">
+        <div class="mb-3">
+            <%- include('form', {label: "Mode Kuis", name: "mode", type: "select", item: mode, required: true}) %>
+        </div>
+        <button type="submit" class="btn btn-primary">Mulai Kuis!</button>
+    </form>
+    <br />
+    <a class="btn btn-success" href="/manage/">Manage Pertanyaan</a>
+</div>

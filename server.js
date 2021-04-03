@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import engine from 'ejs-mate';
 import QuestionsRoutes from './routes/questions.routes.js';
+import GamesRoutes from './routes/games.routes.js';
 
 dotenv.config();
 
@@ -12,6 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static('public'));
 app.use("/", QuestionsRoutes);
+app.use("/", GamesRoutes);
 
 const connectionString = process.env.DB_URL;
 mongoose.set('useCreateIndex', true);

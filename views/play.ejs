@@ -1,0 +1,218 @@
+<% layout('layout') %>
+<link rel="stylesheet" href="/play.css" />
+<div class="container-fluid h-100 d-flex flex-column justify-content-center bg-dark text-white" id="page-prep">
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="text-center">Permainan akan dimulai dalam...</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h1 id="counter-prep" class="display-1 font-weight-bold text-center">5</h1>
+        </div>
+    </div>
+</div>
+<div class="container-fluid d-none flex-column justify-content-center h-100 bg-dark text-white p-md-5" id="page-question">
+    <div class="row">
+        <div class="col text-center my-2"><small id="question-progress" class="mt-2 text-muted">Soal 1 dari N</small></div>
+    </div>
+    <div class="row" style="flex-grow: 1;">
+        <div class="col mb-3 d-flex align-items-center justify-content-center">
+            <h2 id="question-text" class="text-center" style="word-break: break-all;">Soalsoalsoal</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col mx-2">
+            <div class="progress mb-3">
+                <div id="question-timer" class="progress-bar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style="width: 50%;">100%</div>
+            </div>
+        </div>
+    </div>
+    <div class="row mx-2" style="flex-grow: 1;">
+        <div id="jawaban-1" class="col-sm-12 col-md-6 jawaban">
+            <h5>Heading</h5>
+        </div>
+        <div id="jawaban-2" class="col-sm-12 col-md-6 jawaban d-flex align-items-center justify-content-center">
+            <h5>Heading</h5>
+        </div>
+    </div>
+    <div class="row mx-2 mb-3" style="flex-grow: 1;">
+        <div id="jawaban-3" class="col-sm-12 col-md-6 jawaban">
+            <h5>Heading</h5>
+        </div>
+        <div id="jawaban-4" class="col-sm-12 col-md-6 jawaban">
+            <h5>Heading</h5>
+        </div>
+    </div>
+</div>
+<div class="container-fluid h-100 d-none flex-column justify-content-center bg-success text-white" id="page-result">
+    <div class="row">
+        <div class="col-md-12">
+            <h4 class="text-center">Jawabannya adalah</h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h1 id="result-correct" class="display-3 font-weight-bold text-center">Faza</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h6 id="is-true" class="text-center">Kamu berhasil menjawab dengan benar!</h6>
+            <h6 id="is-false" class="text-center">Sayang sekali, jawaban kamu salah :(</h6>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center mt-2"><button class="btn btn-primary" id="result-continue" type="button">Lanjut!</button></div>
+    </div>
+</div>
+<div class="container-fluid h-100 d-none flex-column justify-content-center bg-primary text-white" id="page-end">
+    <div class="row">
+        <div class="col-md-12">
+            <h2 class="text-center display-4 font-weight-bold">Permainan Selesai!</h2>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <h6 id="end-result" class="text-center">Kamu berhasil mendapatkan X jawaban benar dari N pertanyaan.</h6>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center mt-2"><a class="mr-2 btn btn-warning" href="/play?mode=<%= mode.value %>">Coba Lagi</a><a class="ml-2 btn btn-success" href="/">Kembali ke Homepage</a></div>
+    </div>
+</div>
+
+<script>
+    var data = <%- JSON.stringify(data) %>;
+    var mode = <%- JSON.stringify(mode) %>;
+    function togglePage(to){
+        dom[currentPage].page.removeClass("d-flex").addClass("d-none");
+        currentPage = to;
+        dom[to].page.removeClass("d-none").addClass("d-flex");
+    }
+    var currentPage = "prep";
+    var gameState = {
+        currentAnswer: -1,
+        correctAnswer: 0,
+        totalCorrect: 0,
+        timer: 0,
+        lastTimestamp: 0,
+        currentQuestionNo: 0
+    }
+    var dom = {
+        prep: {
+            page: $("#page-prep"),
+            counter: $("#counter-prep"),
+            show: function(){
+                dom.prep.counter.text(5);
+                setTimeout(dom.prep.updateTimer, 1000);
+                togglePage("prep");
+            },
+            updateTimer: function(){
+                const text = parseInt(dom.prep.counter.text());
+                dom.prep.counter.text(text - 1);
+                if(text > 1)
+                    setTimeout(dom.prep.updateTimer, 1000);
+                else
+                    dom.question.show();
+            }
+        },
+        question: {
+            page: $("#page-question"),
+            progressText: $("#question-progress"),
+            soalText: $("#question-text"),
+            progressBar: $("#question-timer"),
+            jawaban: [
+                $("#jawaban-1"),
+                $("#jawaban-2"),
+                $("#jawaban-3"),
+                $("#jawaban-4")
+            ],
+            show: function(){
+                gameState.currentQuestionNo += 1;
+                const q = data[gameState.currentQuestionNo-1];
+                dom.question.progressText.text(`Soal ${gameState.currentQuestionNo} dari ${mode.question}`);
+                dom.question.soalText.text(q.soal);
+                gameState.timer = eachQuestionTimer;
+                var random = Math.round(Math.random() * 3.1);
+                gameState.correctAnswer = random;
+                if(gameState.currentAnswer != -1)
+                    dom.question.jawaban[gameState.currentAnswer].removeClass("bg-primary");
+                gameState.currentAnswer = -1;
+                dom.question.jawaban[random].text(q.jawaban_benar);
+                dom.question.jawaban[(random+1)%4].text(q.jawaban_salah_1);
+                dom.question.jawaban[(random+2)%4].text(q.jawaban_salah_2);
+                dom.question.jawaban[(random+3)%4].text(q.jawaban_salah_3);
+                dom.question.progressBar.attr("aria-valuenow", 100).css("width", `100%`).text(`${Math.round(gameState.timer)}`);
+                togglePage("question");
+                setTimeout(dom.question.updateTimer, 1000);
+            },
+            updateTimer: function(){
+                gameState.timer -= 1;
+                const prog = gameState.timer / eachQuestionTimer;
+                dom.question.progressBar.attr("aria-valuenow", prog * 100).css("width", `${prog * 100}%`).text(`${Math.round(gameState.timer)}`);
+                if(gameState.timer > 0)
+                    setTimeout(dom.question.updateTimer, 1000);
+                else
+                    dom.result.show();
+            }
+        },
+        result: {
+            page: $("#page-result"),
+            resultCorrect: $("#result-correct"),
+            isTrue: $("#is-true"),
+            isFalse: $("#is-false"),
+            resultContinue: $("#result-continue"),
+            show: function(){
+                if(gameState.correctAnswer == gameState.currentAnswer){
+                    gameState.totalCorrect++;
+                    dom.result.isTrue.show();
+                    dom.result.isFalse.hide();
+                    dom.result.page.addClass("bg-success").removeClass("bg-danger");
+                } else {
+                    dom.result.isTrue.hide();
+                    dom.result.isFalse.show();
+                    dom.result.page.removeClass("bg-success").addClass("bg-danger");
+                }
+                dom.result.resultCorrect.text(dom.question.jawaban[gameState.correctAnswer].text());
+                togglePage("result");
+            }
+        },
+        end: {
+            page: $("#page-end"),
+            endResult: $("#end-result"),
+            show: function(){
+                dom.end.endResult.text(`Kamu berhasil mendapatkan ${gameState.totalCorrect} jawaban benar dari ${mode.question} pertanyaan.`);
+                togglePage("end");
+            }
+        }
+    }
+
+    var eachQuestionTimer = 0;
+
+    function setupGame(){
+        eachQuestionTimer = mode.time * 60 / mode.question;
+        dom.result.resultContinue.click(continueGame);
+        dom.question.jawaban.forEach((e, idx)=>{
+            e.click(() => setJawaban(idx));
+        })
+        dom.prep.show();
+    }
+
+    setupGame();
+
+    function setJawaban(i){
+        if(gameState.currentAnswer != -1)
+            dom.question.jawaban[gameState.currentAnswer].removeClass("bg-primary");
+        gameState.currentAnswer = i;
+        dom.question.jawaban[i].addClass("bg-primary");
+    }
+
+    function continueGame(){
+        if(gameState.currentQuestionNo >= mode.question){
+            dom.end.show();
+        } else {
+            dom.prep.show();
+        }
+    }
+</script>

@@ -2,6 +2,13 @@
     <label for="<%= name %>"><%= label %></label>
     <% if (type == 'textarea') { %>
         <textarea class="field form-control<%= typeof readonly !== 'undefined'?'-plaintext':'' %>" name="<%= name %>" id="<%= name %>" <%= typeof readonly !== 'undefined'?'readonly':'' %> type="<%= type %>" name="<%= name %>" id="<%= name %>" <%= typeof required !== 'undefined'?'required':'' %> rows="<%= (typeof rows !== 'undefined'?rows:5) %>"><%= typeof value !== 'undefined' ? value:'' %></textarea>
+    <% } else if(type == 'select') { %> 
+        <select class="custom-select" name="<%= name %>" id="<%= name %>" <%= typeof required !== 'undefined'?'required':'' %>>
+            <option selected value="">Pilih</option>
+            <% item.forEach(el => { %>
+                <option value="<%= el.value %>"><%= el.label %></option>
+            <% }); %>
+        </select>
     <% } else { %>
         <input class="field form-control<%= typeof readonly !== 'undefined'?'-plaintext':'' %>" type="<%= type %>" name="<%= name %>" id="<%= name %>" value="<%= typeof value !== 'undefined' ? value:'' %>" <%= typeof readonly !== 'undefined'?'readonly':'' %> <%= typeof required !== 'undefined'?'required':'' %>/>
     <% } %> 
